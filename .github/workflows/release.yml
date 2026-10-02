@@ -74,13 +74,14 @@ jobs:
       - name: Create GitHub Release
         shell: bash
         run: |
-          shopt -s globstar nullglob
-          files=(artifacts/**/*)
-          echo "Found ${#files[@]} files to release"
+          mkdir -p release_files
+          find artifacts -type f -exec cp {} release_files/ \;
+          ls -lh release_files
           gh release create ${{ github.ref_name }} \
             --title "Singo Download Manager ${{ github.ref_name }}" \
             --notes "Next-generation high performance download manager built with Rust, Tauri v2 & Vercel Geist design system." \
             --clobber \
-            "${files[@]}"
+            release_files/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
