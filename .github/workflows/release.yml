@@ -47,22 +47,20 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
 
       - name: Install Frontend Dependencies
-        working-directory: singo-download-manager
         run: npm ci || npm install
 
       - name: Build Frontend
-        working-directory: singo-download-manager
         run: npm run build
 
       - name: Build Core Engine (Rust)
-        working-directory: singo-download-manager/src-tauri
+        working-directory: src-tauri
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Generate Checksums
         shell: bash
         run: |
-          if [ -d "singo-download-manager/src-tauri/target/${{ matrix.target }}/release" ]; then
-            cd singo-download-manager/src-tauri/target/${{ matrix.target }}/release
+          if [ -d "src-tauri/target/${{ matrix.target }}/release" ]; then
+            cd src-tauri/target/${{ matrix.target }}/release
             sha256sum singo-native-host* > SHA256SUMS.txt || true
           fi
 
@@ -71,8 +69,8 @@ jobs:
         with:
           name: singo-build-${{ matrix.target }}
           path: |
-            singo-download-manager/src-tauri/target/${{ matrix.target }}/release/singo-native-host*
-            singo-download-manager/dist
+            src-tauri/target/${{ matrix.target }}/release/singo-native-host*
+            dist
 
   create-release:
     needs: build-desktop
