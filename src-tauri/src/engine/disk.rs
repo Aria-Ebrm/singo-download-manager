@@ -9,17 +9,5 @@ pub fn preallocate_file<P: AsRef<Path>>(path: P, size: u64) -> Result<File> {
     // Set file size immediately without blocking CPU or filling zeros manually
     file.set_len(size)?;
 
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, set_len sets the end of file pointer instantly.
-        // Optional: Can invoke SetFileValidData if running in elevated mode.
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        use std::os::unix::fs::FileExt;
-        // On Linux, posix_fallocate provides zero-cost block reservation
-    }
-
     Ok(file)
 }
