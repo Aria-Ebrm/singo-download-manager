@@ -10,7 +10,7 @@ name = "singo_core"
 path = "src/lib.rs"
 
 [[bin]]
-name = "singo"
+name = "singo-download-manager"
 path = "src/main.rs"
 
 [[bin]]
@@ -18,11 +18,11 @@ name = "singo-native-host"
 path = "src/bin/native_host.rs"
 
 [build-dependencies]
-tauri-build = { version = "2.0", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2.0", features = [] }
-tauri-plugin-opener = "2.0"
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
 tokio = { version = "1.38", features = ["full"] }
 reqwest = { version = "0.12", features = ["stream", "json"] }
 futures-util = "0.3"
