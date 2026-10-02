@@ -1,5 +1,7 @@
-pub mod part;
-pub mod disk;
+pub mod engine {
+    pub mod part;
+    pub mod disk;
+}
 
 use std::sync::Arc;
 use tokio::sync::RwLock;
