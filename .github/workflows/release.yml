@@ -41,17 +41,33 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci || npm install
 
-      - name: Build Frontend
-        run: npm run build
-
       - name: Build Tauri Application
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tauri build --ci
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Singo Download Manager ${{ github.ref_name }}'
-          releaseBody: 'Next-generation high performance download manager built with Rust, Tauri v2 & Vercel Geist design system.'
-          releaseDraft: false
-          prerelease: false
-          projectPath: '.'
+          name: singo-${{ matrix.platform }}
+          path: |
+            src-tauri/target/release/bundle/*/*
+            src-tauri/target/release/*.exe
+            src-tauri/target/release/singo-download-manager
+
+  create-release:
+    needs: build-tauri
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display downloaded files
+        run: ls -R artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/**/*
