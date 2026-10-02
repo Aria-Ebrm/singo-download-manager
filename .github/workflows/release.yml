@@ -1,0 +1,90 @@
+name: Release Multiplatform Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            target: 'x86_64-pc-windows-msvc'
+            artifact: 'singo-windows.exe'
+          - platform: 'macos-latest'
+            target: 'x86_64-apple-darwin'
+            artifact: 'singo-macos.dmg'
+          - platform: 'ubuntu-22.04'
+            target: 'x86_64-unknown-linux-gnu'
+            artifact: 'singo-linux.AppImage'
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install Linux system dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
+
+      - name: Install Frontend Dependencies
+        working-directory: singo-download-manager
+        run: npm ci || npm install
+
+      - name: Build Frontend
+        working-directory: singo-download-manager
+        run: npm run build
+
+      - name: Build Core Engine (Rust)
+        working-directory: singo-download-manager/src-tauri
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Generate Checksums
+        shell: bash
+        run: |
+          if [ -d "singo-download-manager/src-tauri/target/${{ matrix.target }}/release" ]; then
+            cd singo-download-manager/src-tauri/target/${{ matrix.target }}/release
+            sha256sum singo-native-host* > SHA256SUMS.txt || true
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: singo-build-${{ matrix.target }}
+          path: |
+            singo-download-manager/src-tauri/target/${{ matrix.target }}/release/singo-native-host*
+            singo-download-manager/dist
+
+  create-release:
+    needs: build-desktop
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            singo-build-*/*

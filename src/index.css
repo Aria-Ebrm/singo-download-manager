@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-ink: #171717;
+    --color-body: #4d4d4d;
+    --color-mute: #8f8f8f;
+    --color-faint: #a1a1a1;
+    --color-hairline: #ebebeb;
+    --color-hairline-soft: #f2f2f2;
+    --color-canvas: #fafafa;
+    --color-canvas-elevated: #ffffff;
+    --color-link: #0070f3;
+    --color-link-deep: #0761d1;
+    --color-link-soft: #d3e5ff;
+    --color-error: #ee0000;
+    --color-warning: #f5a623;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-body);
+    font-family: -apple-system, BlinkMacSystemFont, "Geist", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    letter-spacing: -0.01em;
+    user-select: none;
+    overflow: hidden;
+  }
+}
+
+/* Vercel Geist Signature Mesh Gradient for Header/Hero */
+.geist-mesh-gradient {
+  background: radial-gradient(at 0% 0%, #50e3c2 0px, transparent 50%),
+              radial-gradient(at 50% 0%, #007cf0 0px, transparent 50%),
+              radial-gradient(at 100% 0%, #7928ca 0px, transparent 50%),
+              radial-gradient(at 100% 100%, #ff0080 0px, transparent 50%),
+              radial-gradient(at 0% 100%, #f9cb28 0px, transparent 50%);
+  opacity: 0.12;
+  filter: blur(40px);
+}
