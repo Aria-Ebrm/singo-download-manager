@@ -16,11 +16,14 @@ jobs:
       matrix:
         include:
           - platform: 'windows-latest'
-            artifact: 'singo-windows.exe'
+            bin_name: 'singo-native-host.exe'
+            release_name: 'singo-windows-x86_64.exe'
           - platform: 'macos-latest'
-            artifact: 'singo-macos'
+            bin_name: 'singo-native-host'
+            release_name: 'singo-macos-universal'
           - platform: 'ubuntu-22.04'
-            artifact: 'singo-linux'
+            bin_name: 'singo-native-host'
+            release_name: 'singo-linux-x86_64'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -51,21 +54,17 @@ jobs:
         working-directory: src-tauri
         run: cargo build --release
 
-      - name: Generate Checksums
+      - name: Prepare Artifact
         shell: bash
         run: |
-          if [ -d "src-tauri/target/release" ]; then
-            cd src-tauri/target/release
-            sha256sum singo-native-host* > SHA256SUMS.txt || true
-          fi
+          mkdir -p release-pkg
+          cp src-tauri/target/release/${{ matrix.bin_name }} release-pkg/${{ matrix.release_name }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: singo-build-${{ matrix.platform }}
-          path: |
-            src-tauri/target/release/singo-native-host*
-            dist
+          name: singo-${{ matrix.platform }}
+          path: release-pkg/${{ matrix.release_name }}
 
   create-release:
     needs: build-desktop
@@ -74,10 +73,14 @@ jobs:
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: |
-            singo-build-*/*
+          files: artifacts/**/*

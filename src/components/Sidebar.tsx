@@ -14,9 +14,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const categories = [
     { id: 'all', label: 'All Downloads', icon: 'layers' },
-    { id: 'downloading', label: 'Downloading', icon: 'arrow-down-circle' },
-    { id: 'completed', label: 'Completed', icon: 'check-circle' },
-    { id: 'paused', label: 'Paused', icon: 'pause-circle' },
+    { id: 'downloading', label: 'Downloading', icon: 'circle-arrow-down' },
+    { id: 'completed', label: 'Completed', icon: 'circle-check' },
+    { id: 'paused', label: 'Paused', icon: 'circle-pause' },
   ];
 
   const types = [

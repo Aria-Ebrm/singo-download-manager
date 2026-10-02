@@ -101,7 +101,7 @@ export const DownloadCard: React.FC<DownloadCardProps> = ({
             title="Delete"
             className="rounded-md border border-[#ebebeb] bg-white p-2 text-[#8f8f8f] hover:border-red-200 hover:bg-red-50 hover:text-[#ee0000] transition-colors cursor-pointer"
           >
-            <Icon name="trash-2" size={15} />
+            <Icon name="trash" size={15} />
           </button>
         </div>
       </div>
