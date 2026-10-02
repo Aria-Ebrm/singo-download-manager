@@ -41,6 +41,9 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci || npm install
 
+      - name: Build Frontend
+        run: npm run build
+
       - name: Build Tauri Application
         uses: tauri-apps/tauri-action@v0
         env:
@@ -51,3 +54,4 @@ jobs:
           releaseBody: 'Next-generation high performance download manager built with Rust, Tauri v2 & Vercel Geist design system.'
           releaseDraft: false
           prerelease: false
+          projectPath: '.'
