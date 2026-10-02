@@ -49,8 +49,13 @@ jobs:
         with:
           name: singo-${{ matrix.platform }}
           path: |
-            src-tauri/target/release/bundle/*/*
-            src-tauri/target/release/*.exe
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/rpm/*.rpm
+            src-tauri/target/release/singo-download-manager.exe
             src-tauri/target/release/singo-download-manager
 
   create-release:
@@ -75,13 +80,14 @@ jobs:
         shell: bash
         run: |
           mkdir -p release_files
-          find artifacts -type f -exec cp {} release_files/ \;
+          find artifacts -type f \( -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \) -exec cp {} release_files/ \;
           ls -lh release_files
+          gh release delete ${{ github.ref_name }} --yes || true
           gh release create ${{ github.ref_name }} \
             --title "Singo Download Manager ${{ github.ref_name }}" \
             --notes "Next-generation high performance download manager built with Rust, Tauri v2 & Vercel Geist design system." \
-            --clobber \
             release_files/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
