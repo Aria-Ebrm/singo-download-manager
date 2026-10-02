@@ -12,14 +12,13 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Singo Download Manager",
         "width": 1050,
         "height": 680,
         "minWidth": 800,
         "minHeight": 550,
-        "resizable": true,
-        "decorations": true,
-        "transparent": false
+        "resizable": true
       }
     ],
     "security": {
