@@ -10,20 +10,14 @@ permissions:
   contents: write
 
 jobs:
-  build-desktop:
+  build-tauri:
     strategy:
       fail-fast: false
       matrix:
         include:
           - platform: 'windows-latest'
-            bin_name: 'singo-native-host.exe'
-            release_name: 'singo-windows-x86_64.exe'
           - platform: 'macos-latest'
-            bin_name: 'singo-native-host'
-            release_name: 'singo-macos-universal'
           - platform: 'ubuntu-22.04'
-            bin_name: 'singo-native-host'
-            release_name: 'singo-linux-x86_64'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -47,40 +41,13 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci || npm install
 
-      - name: Build Frontend
-        run: npm run build
-
-      - name: Build Core Engine (Rust)
-        working-directory: src-tauri
-        run: cargo build --release
-
-      - name: Prepare Artifact
-        shell: bash
-        run: |
-          mkdir -p release-pkg
-          cp src-tauri/target/release/${{ matrix.bin_name }} release-pkg/${{ matrix.release_name }}
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Build Tauri Application
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: singo-${{ matrix.platform }}
-          path: release-pkg/${{ matrix.release_name }}
-
-  create-release:
-    needs: build-desktop
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Display structure of downloaded files
-        run: ls -R artifacts
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          files: artifacts/**/*
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Singo Download Manager ${{ github.ref_name }}'
+          releaseBody: 'Next-generation high performance download manager built with Rust, Tauri v2 & Vercel Geist design system.'
+          releaseDraft: false
+          prerelease: false
